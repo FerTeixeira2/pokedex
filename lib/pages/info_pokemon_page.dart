@@ -45,57 +45,108 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.nome),
+        backgroundColor: Colors.blueAccent,
+        title: Text(widget.nome, style: TextStyle(fontSize: 24)),
       ),
+      backgroundColor: const Color.fromARGB(255, 149, 206, 233),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
-          : Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 158, 245, 212),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Image.network(
-                          detalhesPokemon['sprites']['front_default'] ?? '',
-                          height: 130,
-                          width: 130,
-                        ),
-                      ),
-                      SizedBox(height: 14),
-                      Text('Name: ${widget.nome}',
-                          style: TextStyle(
-                              fontSize: 27, fontWeight: FontWeight.bold)),
-                      SizedBox(height: 14),
-                      Text('ID: ${detalhesPokemon['id']}',
-                          style: TextStyle(fontSize: 27)),
-                      Text('Height: ${detalhesPokemon['height']} decímetros',
-                          style: TextStyle(fontSize: 27)),
-                      Text('Weight: ${detalhesPokemon['weight']} hectogramas',
-                          style: TextStyle(fontSize: 27)),
-                      Text(
-                          'Base Experience: ${detalhesPokemon['base_experience']}',
-                          style: TextStyle(fontSize: 27)),
-                      SizedBox(height: 14),
-                      Text('Abilities:',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
-                      ...detalhesPokemon['abilities']
-                          .map<Widget>((ability) => Text(
-                              ability['ability']['name'],
-                              style: TextStyle(fontSize: 27)))
-                          .toList(),
-                    ],
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    '${detalhesPokemon['name']}'.toUpperCase(),
+                    style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: const Color.fromARGB(255, 44, 33, 33),
+                        fontFamily: "arial"),
                   ),
                 ),
-              ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 16.0),
+                      child: Text(
+                        'ID # ${detalhesPokemon['id']}',
+                        style: TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+                Center(
+                  child: Image.network(
+                    detalhesPokemon['sprites']['front_default']
+                        .replaceAll('small', 'large'),
+                    fit: BoxFit.cover,
+                    height: 230,
+                    width: 230,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color.fromARGB(255, 83, 60, 60),
+                          blurRadius: 10,
+                          offset: Offset(5, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('ID: ${detalhesPokemon['id']}',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        SizedBox(height: 10),
+                        Text('Height: ${detalhesPokemon['height']} decímetros',
+                            style: TextStyle(fontSize: 16)),
+                        Text('Weight: ${detalhesPokemon['weight']} hectogramas',
+                            style: TextStyle(fontSize: 16)),
+                        Text(
+                            'Base Experience: ${detalhesPokemon['base_experience']}',
+                            style: TextStyle(fontSize: 16)),
+                        SizedBox(height: 20),
+                        Text('Abilities:',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        SizedBox(height: 15),
+                        ...detalhesPokemon['abilities']
+                            .map<Widget>((ability) => Text(
+                                ability['ability']['name'],
+                                style: TextStyle(fontSize: 16)))
+                            .toList(),
+                        SizedBox(height: 20),
+                        Text('Type:',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text(
+                            'Type: ${detalhesPokemon["types"][0]["type"]["name"]}',
+                            style: TextStyle(fontSize: 16)),
+                        SizedBox(height: 20),
+                        Text('Moves:',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text(
+                            'Moves: ${detalhesPokemon["moves"][0]["move"]["name"]}',
+                            style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+              ],
             ),
     );
   }
