@@ -76,6 +76,8 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
         return const Color.fromARGB(255, 109, 16, 231);
       case 'ground':
         return const Color.fromARGB(255, 99, 40, 7);
+      case 'ice':
+        return const Color.fromARGB(255, 7, 212, 202);
       default:
         return Colors.grey;
     }
@@ -85,7 +87,7 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
     if (types.isEmpty) return const Color.fromARGB(255, 247, 246, 246);
     switch (types) {
       case 'grass':
-        return const Color.fromARGB(255, 6, 184, 12);
+        return const Color.fromARGB(255, 6, 139, 10);
       case 'fire':
         return const Color.fromARGB(255, 138, 41, 3);
       case 'water':
@@ -111,7 +113,9 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
       case 'ghost':
         return const Color.fromARGB(255, 52, 5, 114);
       case 'ground':
-        return const Color.fromARGB(255, 53, 21, 3);
+        return const Color.fromARGB(255, 44, 17, 2);
+      case 'ice':
+        return const Color.fromARGB(255, 6, 131, 125);
       default:
         return const Color.fromARGB(255, 83, 80, 80);
     }
@@ -197,6 +201,7 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
                     ),
                   ),
                   SizedBox(height: 16),
+                  // Bloco branco com as informações
                   Container(
                     width: double.infinity,
                     padding:
@@ -218,11 +223,9 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
                             'Height', '${detalhesPokemon['height']} dm'),
                         _buildInfoCard(
                             'Weight', '${detalhesPokemon['weight']} hg'),
-                        _buildInfoCard('Base Experience',
-                            '${detalhesPokemon['base_experience']}'),
                         SizedBox(height: 4),
                         _buildInfoCard(
-                            'Abilities:',
+                            'Abilities: ',
                             detalhesPokemon['abilities']
                                 .map((ability) {
                                   return ability["ability"]['name'];
@@ -231,7 +234,7 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
                                 .join(", ")),
                         SizedBox(height: 4),
                         _buildInfoCard(
-                          'Moves:',
+                          'Moves: ',
                           detalhesPokemon["moves"]
                               .take(3)
                               .map((move) {
@@ -242,7 +245,7 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
                         ),
                         if (showAllMoves) ...[
                           _buildInfoCard(
-                            'Additional Moves:',
+                            'Additional Moves: ',
                             detalhesPokemon["moves"]
                                 .skip(3)
                                 .map((move) {
@@ -264,6 +267,50 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
                             style: TextStyle(color: Colors.blue),
                           ),
                         ),
+                        SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 16,
+                            horizontal: 16,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(238, 238, 238, 1),
+                            borderRadius: BorderRadius.circular(18),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 12,
+                                offset: Offset(0, -4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Estatísticas',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(255, 5, 5, 5),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              _buildStatRow("HP",
+                                  detalhesPokemon["stats"][0]["base_stat"]),
+                              _buildStatRow("Ataque",
+                                  detalhesPokemon["stats"][1]["base_stat"]),
+                              _buildStatRow("Defesa",
+                                  detalhesPokemon["stats"][2]["base_stat"]),
+                              _buildStatRow("Ataque Special",
+                                  detalhesPokemon["stats"][3]["base_stat"]),
+                              _buildStatRow("Defesa Special",
+                                  detalhesPokemon["stats"][4]["base_stat"]),
+                              _buildStatRow("Velocidade",
+                                  detalhesPokemon["stats"][5]["base_stat"]),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -279,7 +326,7 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
       width: double.infinity,
       margin: EdgeInsets.symmetric(vertical: 8),
       child: Card(
-        color: Colors.grey[200],
+        color: const Color.fromRGBO(238, 238, 238, 1),
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -307,5 +354,54 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildStatRow(String label, int value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Color.fromARGB(255, 2, 2, 2),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: LinearProgressIndicator(
+              value: value / 100,
+              backgroundColor: const Color.fromRGBO(238, 238, 238, 1),
+              valueColor:
+                  AlwaysStoppedAnimation<Color>(_getColorForStat(value)),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            value.toString(),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 14, 14, 14),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getColorForStat(int value) {
+    if (value >= 80) {
+      return Colors.green;
+    } else if (value >= 50) {
+      return Colors.orange;
+    } else {
+      return Colors.red;
+    }
   }
 }
