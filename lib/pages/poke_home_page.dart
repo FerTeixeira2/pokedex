@@ -1,71 +1,194 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:pokedex/models/nome_pokemon_model.dart';
-import 'package:pokedex/pages/info_pokemon_page.dart';
+import 'info_pokemon_page.dart';
 
-class PokeHomePage extends StatelessWidget {
+class PokeHomePage extends StatefulWidget {
   const PokeHomePage({super.key});
+
+  @override
+  State<PokeHomePage> createState() => _PokeHomePageState();
+}
+
+class _PokeHomePageState extends State<PokeHomePage> {
+  final ScrollController _scrollController = ScrollController();
+  bool isLoading = false;
+  int offset = 0;
+  List<ListPokemomModel> pokemonList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPokemonList();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  Future<void> _fetchPokemonList() async {
+    if (isLoading) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final dio = Dio();
+      final response =
+          await dio.get('https://pokeapi.co/api/v2/pokemon', queryParameters: {
+        'limit': 20,
+        'offset': offset,
+      });
+
+      setState(() {
+        pokemonList.addAll(response.data['results']
+            .map<ListPokemomModel>(
+                (pokemon) => ListPokemomModel.fromMap(pokemon))
+            .toList());
+        offset += 20;
+        isLoading = false;
+      });
+    } catch (e) {
+      print("Erro ao carregar Pokémons: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      _fetchPokemonList();
+    }
+  }
+
+  Color getPokemonTypeColor(List<dynamic> types) {
+    if (types.isNotEmpty) {
+      String type = types[0]['type']['name'];
+      switch (type) {
+        case 'grass':
+          return const Color.fromARGB(255, 55, 212, 60);
+        case 'fire':
+          return const Color.fromARGB(255, 240, 73, 7);
+        case 'water':
+          return const Color.fromARGB(255, 10, 115, 201);
+        case 'electric':
+          return Colors.amber;
+        case 'poison':
+          return const Color.fromARGB(255, 175, 37, 202);
+        case 'bug':
+          return const Color.fromARGB(255, 138, 204, 63);
+        case 'flying':
+          return const Color.fromARGB(255, 113, 191, 228);
+        case 'normal':
+          return const Color.fromARGB(255, 201, 199, 199);
+        case 'fighting':
+          return const Color.fromARGB(255, 218, 6, 6);
+        case 'rock':
+          return const Color.fromARGB(255, 199, 99, 63);
+        case 'psychic':
+          return Colors.deepPurpleAccent.shade100;
+        case 'fairy':
+          return const Color.fromARGB(255, 214, 106, 182);
+        case 'ghost':
+          return const Color.fromARGB(255, 109, 16, 231);
+        case 'ground':
+          return const Color.fromARGB(255, 99, 40, 7);
+        default:
+          return Colors.grey;
+      }
+    }
+    return Colors.grey;
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Poke Page"),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('PokeDex'),
       ),
-      body: _buildBody(),
-    );
-  }
+      body: pokemonList.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : GridView.builder(
+              controller: _scrollController,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                childAspectRatio: 1,
+              ),
+              itemCount: pokemonList.length + (isLoading ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index == pokemonList.length) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-  Future<List<ListPokemomModel>> _getPokemons() async {
-    final dio = Dio();
-    final response =
-        await dio.get('https://pokeapi.co/api/v2/pokemon?offset=20&limit=1304');
-    var results = response.data['results'];
-    List<ListPokemomModel> listaPokemons = (results as List)
-        .map((pokemon) => ListPokemomModel.fromMap(pokemon))
-        .toList();
-    await Future.delayed(Duration(seconds: 4));
-    return listaPokemons;
-  }
+                final pokemon = pokemonList[index];
+                final name = pokemon.nome;
+                final url = pokemon.url;
 
-  Widget _buildBody() {
-    return FutureBuilder<List<ListPokemomModel>>(
-      future: _getPokemons(),
-      builder: (context, response) {
-        if (response.connectionState == ConnectionState.done) {
-          var lista = response.data;
-          if (lista == null || lista.isEmpty) {
-            return Text("Nenhum Pokémon encontrado!");
-          }
+                final typeResponse = Dio().get(url);
 
-          return ListView.builder(
-            itemCount: lista.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                leading: Image.asset(
-                  'assets/images/pokeball.png',
-                  width: 25,
-                  height: 25,
-                ),
-                title: Text(lista[index].nome),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DetalhesPokemonPage(
-                        nome: lista[index].nome,
-                        url: lista[index].url,
+                return FutureBuilder(
+                  future: typeResponse,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return const Center(
+                          child: Text('Erro ao carregar tipos'));
+                    }
+
+                    final pokemonDetails = snapshot.data?.data;
+                    final types = pokemonDetails['types'];
+
+                    Color backgroundColor = getPokemonTypeColor(types);
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetalhesPokemonPage(
+                              nome: name,
+                              url: url,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Card(
+                        color: backgroundColor,
+                        margin: const EdgeInsets.all(4.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Image.network(
+                              'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${url.split('/')[6]}.png',
+                              height: 80,
+                              width: 80,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              name.toUpperCase(),
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        }
-        return CircularProgressIndicator();
-      },
+                    );
+                  },
+                );
+              },
+            ),
     );
   }
 }
