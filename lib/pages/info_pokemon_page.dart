@@ -20,6 +20,8 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
   Map<String, dynamic> detalhesPokemon = {};
   Color backgroundColor = Colors.white;
   bool showAllMoves = false;
+  double pesoEmQuilos = 0;
+  double alturaEmMetros = 0;
 
   @override
   void initState() {
@@ -36,6 +38,8 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
         List<dynamic> types = detalhesPokemon['types'] ?? [];
         backgroundColor = _getBackgroundColor(types);
         isLoading = false;
+        pesoEmQuilos = detalhesPokemon["weight"] / 10;
+        alturaEmMetros = detalhesPokemon["height"] / 10;
       });
     } catch (e) {
       print("Erro ao buscar detalhes do Pokémon: $e");
@@ -113,7 +117,7 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
       case 'ghost':
         return const Color.fromARGB(255, 52, 5, 114);
       case 'ground':
-        return const Color.fromARGB(255, 44, 17, 2);
+        return const Color.fromARGB(255, 68, 26, 3);
       case 'ice':
         return const Color.fromARGB(255, 6, 131, 125);
       default:
@@ -201,7 +205,6 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
                     ),
                   ),
                   SizedBox(height: 16),
-                  // Bloco branco com as informações
                   Container(
                     width: double.infinity,
                     padding:
@@ -219,10 +222,8 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
                     ),
                     child: Column(
                       children: [
-                        _buildInfoCard(
-                            'Height', '${detalhesPokemon['height']} dm'),
-                        _buildInfoCard(
-                            'Weight', '${detalhesPokemon['weight']} hg'),
+                        _buildInfoCard('Height', '${alturaEmMetros} m'),
+                        _buildInfoCard('Weight', '${pesoEmQuilos} kg'),
                         SizedBox(height: 4),
                         _buildInfoCard(
                             'Abilities: ',
