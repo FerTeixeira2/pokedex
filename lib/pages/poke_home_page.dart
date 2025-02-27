@@ -13,7 +13,6 @@ class PokeHomePage extends StatefulWidget {
 class _PokeHomePageState extends State<PokeHomePage> {
   final ScrollController _scrollController = ScrollController();
   bool isLoading = false;
-  int offset = 0;
   List<ListPokemomModel> pokemonList = [];
   List<ListPokemomModel> filteredPokemonList = [];
   TextEditingController searchController = TextEditingController();
@@ -37,8 +36,8 @@ class _PokeHomePageState extends State<PokeHomePage> {
       final dio = Dio();
       final response =
           await dio.get('https://pokeapi.co/api/v2/pokemon', queryParameters: {
-        'limit': 20,
-        'offset': offset,
+        'limit': 1000,
+        'offset': 0,
       });
 
       setState(() {
@@ -47,7 +46,6 @@ class _PokeHomePageState extends State<PokeHomePage> {
                 (pokemon) => ListPokemomModel.fromMap(pokemon))
             .toList());
         filteredPokemonList = List.from(pokemonList);
-        offset += 20;
         isLoading = false;
       });
     } catch (e) {
@@ -69,9 +67,7 @@ class _PokeHomePageState extends State<PokeHomePage> {
 
   void _scrollListener() {
     if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
-      _fetchPokemonList();
-    }
+        _scrollController.position.maxScrollExtent) {}
   }
 
   Color getPokemonTypeColor(List<dynamic> types) {
