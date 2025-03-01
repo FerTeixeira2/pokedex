@@ -303,9 +303,9 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
                                   detalhesPokemon["stats"][1]["base_stat"]),
                               _buildStatRow("Defesa",
                                   detalhesPokemon["stats"][2]["base_stat"]),
-                              _buildStatRow("Ataque Special",
+                              _buildStatRow("Atk Special",
                                   detalhesPokemon["stats"][3]["base_stat"]),
-                              _buildStatRow("Defesa Special",
+                              _buildStatRow("Def Special",
                                   detalhesPokemon["stats"][4]["base_stat"]),
                               _buildStatRow("Velocidade",
                                   detalhesPokemon["stats"][5]["base_stat"]),
@@ -322,46 +322,38 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
     );
   }
 
-  Widget _buildInfoCard(String label, String value) {
-    return Container(
-      width: double.infinity,
-      margin: EdgeInsets.symmetric(vertical: 8),
-      child: Card(
-        color: const Color.fromRGBO(238, 238, 238, 1),
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                value,
-                style: TextStyle(fontSize: 16, color: Colors.black54),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildStatRow(String label, int value) {
+    IconData icon;
+
+    switch (label) {
+      case "HP":
+        icon = Icons.favorite;
+        break;
+      case "Ataque":
+        icon = Icons.flash_on;
+        break;
+      case "Defesa":
+        icon = Icons.shield;
+        break;
+      case "Atk Special":
+        icon = Icons.local_fire_department;
+        break;
+      case "Def Special":
+        icon = Icons.security;
+        break;
+      case "Velocidade":
+        icon = Icons.directions_run;
+        break;
+      default:
+        icon = Icons.help;
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
+          Icon(icon, color: _getColorForStat(value)),
+          const SizedBox(width: 8),
           Expanded(
             flex: 2,
             child: Text(
@@ -404,5 +396,88 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
     } else {
       return Colors.red;
     }
+  }
+}
+
+Widget _buildInfoCard(String label, String value) {
+  return Container(
+    width: double.infinity,
+    margin: EdgeInsets.symmetric(vertical: 8),
+    child: Card(
+      color: const Color.fromRGBO(238, 238, 238, 1),
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              value,
+              style: TextStyle(fontSize: 16, color: Colors.black54),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+Widget _buildStatRow(String label, int value) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Row(
+      children: [
+        Expanded(
+          flex: 2,
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Color.fromARGB(255, 2, 2, 2),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: LinearProgressIndicator(
+            value: value / 100,
+            backgroundColor: const Color.fromRGBO(238, 238, 238, 1),
+            valueColor: AlwaysStoppedAnimation<Color>(_getColorForStat(value)),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          value.toString(),
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 14, 14, 14),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Color _getColorForStat(int value) {
+  if (value >= 80) {
+    return Colors.green;
+  } else if (value >= 50) {
+    return Colors.orange;
+  } else {
+    return Colors.red;
   }
 }
