@@ -138,75 +138,133 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
       backgroundColor: backgroundColor,
       body: isLoading
           ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      '${detalhesPokemon['name']}'.toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontFamily: "Arial",
-                      ),
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    '${detalhesPokemon['name']}'.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontFamily: "Arial",
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            ...detalhesPokemon["types"].map((type) {
-                              return Container(
-                                margin: EdgeInsets.symmetric(horizontal: 3),
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 4, horizontal: 8),
-                                decoration: BoxDecoration(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(16)),
-                                    color: _getTypeColor(type["type"]["name"])),
-                                child: Text(
-                                  type["type"]["name"],
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          ...detalhesPokemon["types"].map((type) {
+                            return Container(
+                              margin: EdgeInsets.symmetric(horizontal: 3),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 8),
+                              decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                                color: _getTypeColor(type["type"]["name"]),
+                              ),
+                              child: Text(
+                                type["type"]["name"],
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
                                 ),
-                              );
-                            }).toList(),
-                          ],
-                        ),
+                              ),
+                            );
+                          }).toList(),
+                        ],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0),
-                        child: Text(
-                          'ID # ${detalhesPokemon['id']}',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w500,
-                            color: const Color.fromARGB(255, 252, 250, 250),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Center(
-                    child: Image.network(
-                      detalhesPokemon['sprites']['front_default']
-                          .replaceAll('small', 'large'),
-                      fit: BoxFit.cover,
-                      height: 160,
-                      width: 160,
                     ),
-                  ),
-                  SizedBox(height: 16),
-                  Container(
-                    width: double.infinity,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: Text(
+                        'ID # ${detalhesPokemon['id']}',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w500,
+                          color: const Color.fromARGB(255, 252, 250, 250),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Center(
+                      child: Image.network(
+                        detalhesPokemon['sprites']['front_default']
+                            .replaceAll('small', 'large'),
+                        fit: BoxFit.cover,
+                        height: 160,
+                        width: 160,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                          right: MediaQuery.of(context).size.width * 0.05,
+                          left: MediaQuery.of(context).size.width * 0.12),
+                      child: IconButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text('Movimentos do Pokémon'),
+                                  content: SingleChildScrollView(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        ...detalhesPokemon['moves']
+                                            .map<Widget>((move) {
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 4.0),
+                                            child: Text(
+                                              move['move']['name'],
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('Fechar'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          style: TextButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 248, 248, 248),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          icon: Icon(Icons.sports_martial_arts)),
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
@@ -222,57 +280,119 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
                     ),
                     child: Column(
                       children: [
-                        _buildInfoCard('Height', '${alturaEmMetros} m'),
-                        _buildInfoCard('Weight', '${pesoEmQuilos} kg'),
-                        SizedBox(height: 4),
-                        _buildInfoCard(
-                            'Abilities: ',
-                            detalhesPokemon['abilities']
-                                .map((ability) {
-                                  return ability["ability"]['name'];
-                                })
-                                .toList()
-                                .join(", ")),
-                        SizedBox(height: 4),
-                        _buildInfoCard(
-                          'Moves: ',
-                          detalhesPokemon["moves"]
-                              .take(3)
-                              .map((move) {
-                                return move["move"]["name"];
-                              })
-                              .toList()
-                              .join(", "),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              width: MediaQuery.of(context).size.width * 0.45,
+                              child: Card(
+                                elevation: 5,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Height',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        '${alturaEmMetros} m',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: MediaQuery.of(context).size.width * 0.45,
+                              child: Card(
+                                elevation: 5,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Weight',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        '${pesoEmQuilos} kg',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        if (showAllMoves) ...[
-                          _buildInfoCard(
-                            'Additional Moves: ',
-                            detalhesPokemon["moves"]
-                                .skip(3)
-                                .map((move) {
-                                  return move["move"]["name"];
-                                })
-                                .toList()
-                                .join(", "),
-                          ),
-                        ],
-                        SizedBox(height: 4),
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              showAllMoves = !showAllMoves;
-                            });
-                          },
-                          child: Text(
-                            showAllMoves ? 'Mostrar menos' : 'Mostrar mais',
-                            style: TextStyle(color: Colors.blue),
+                        SizedBox(height: 0.5),
+                        Container(
+                          width: MediaQuery.of(context).size.width * 0.95,
+                          child: Card(
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Abilities',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    detalhesPokemon['abilities']
+                                        .map((ability) =>
+                                            ability["ability"]['name'])
+                                        .toList()
+                                        .join(", "),
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
-                        SizedBox(height: 16),
+                        SizedBox(height: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 16,
+                            vertical: 12,
+                            horizontal: 12,
                           ),
                           decoration: BoxDecoration(
                             color: const Color.fromRGBO(238, 238, 238, 1),
@@ -296,7 +416,7 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
                                   color: Color.fromARGB(255, 5, 5, 5),
                                 ),
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 6),
                               _buildStatRow("HP",
                                   detalhesPokemon["stats"][0]["base_stat"]),
                               _buildStatRow("Ataque",
@@ -312,13 +432,55 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
                             ],
                           ),
                         ),
+                        SizedBox(height: 1),
                       ],
                     ),
                   ),
-                  SizedBox(height: 4),
-                ],
-              ),
+                ),
+              ],
             ),
+    );
+  }
+
+  Widget _buildInfoCardRow(List<Map<String, String>> items) {
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: Card(
+        color: const Color.fromRGBO(238, 238, 238, 1),
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: items.map((item) {
+              return Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item['label']!,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      item['value']!,
+                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
     );
   }
 
