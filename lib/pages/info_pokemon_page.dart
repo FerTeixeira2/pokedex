@@ -155,6 +155,13 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
+                    IconButton(
+                      icon: Icon(Icons.arrow_back),
+                      iconSize: 36,
+                      onPressed: () {
+                        setState(() {});
+                      },
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 16.0),
                       child: Row(
@@ -183,16 +190,12 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: Text(
-                        'ID # ${detalhesPokemon['id']}',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w500,
-                          color: const Color.fromARGB(255, 252, 250, 250),
-                        ),
-                      ),
+                    IconButton(
+                      icon: Icon(Icons.arrow_forward),
+                      iconSize: 36,
+                      onPressed: () {
+                        setState(() {});
+                      },
                     ),
                   ],
                 ),
