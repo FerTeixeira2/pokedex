@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:pokedex/right_left_enum.dart';
 
 class DetalhesPokemonPage extends StatefulWidget {
   final String nome;
@@ -22,17 +23,21 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
   bool showAllMoves = false;
   double pesoEmQuilos = 0;
   double alturaEmMetros = 0;
+  Map<String, dynamic> evolutions = {};
+
+  var urlPokemon = "";
 
   @override
   void initState() {
     super.initState();
+    urlPokemon = widget.url;
     _fetchPokemonDetails();
   }
 
   Future<void> _fetchPokemonDetails() async {
     try {
       final dio = Dio();
-      final response = await dio.get(widget.url);
+      final response = await dio.get(urlPokemon);
       setState(() {
         detalhesPokemon = response.data;
         List<dynamic> types = detalhesPokemon['types'] ?? [];
@@ -46,6 +51,63 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
       setState(() {
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> _goToEvolutionChain(RightLeftEnum rightLeftEnum) async {
+    final dio = Dio();
+    final species = await dio.get(detalhesPokemon["species"]["url"]);
+
+    if (rightLeftEnum == RightLeftEnum.left) {
+      if (species.data["evolves_from_species"] == null) return;
+      final previousSpecie =
+          await dio.get(species.data["evolves_from_species"]["url"]);
+      var previousPokemonSumurryData =
+          (previousSpecie.data["varieties"] as List<dynamic>)
+              .firstWhere((e) => e["is_default"] == true);
+      urlPokemon = previousPokemonSumurryData["pokemon"]["url"];
+      isLoading = true;
+      _fetchPokemonDetails();
+    } else {
+      var pokemonId = detalhesPokemon["id"];
+      var evolvesChain = await dio.get(species.data["evolution_chain"]["url"]);
+      var chain = evolvesChain.data["chain"];
+      if ((chain["evolves_to"] as List<dynamic>).length == 1) {
+        var shouldContinue = true;
+        while (shouldContinue) {
+          if (chain["evolves_to"].isEmpty ||
+              chain["evolves_to"][0]["species"]["url"] == null) {
+            shouldContinue = false;
+            continue;
+          }
+          if (chain["evolves_to"][0]["species"]["url"] ==
+              "https://pokeapi.co/api/v2/pokemon-species/${pokemonId + 1}/") {
+            final nextSpecie =
+                await dio.get(chain["evolves_to"][0]["species"]["url"]);
+            var previousPokemonSumurryData =
+                (nextSpecie.data["varieties"] as List<dynamic>)
+                    .firstWhere((e) => e["is_default"] == true);
+            urlPokemon = previousPokemonSumurryData["pokemon"]["url"];
+            shouldContinue = false;
+            isLoading = true;
+            _fetchPokemonDetails();
+          } else {
+            chain = chain["evolves_to"][0];
+          }
+        }
+      } else {
+        for (var item in chain["evolves_to"]) {
+          if (item["species"]["url"] ==
+              "https://pokeapi.co/api/v2/pokemon-species/${pokemonId + 1}/") {
+            final nextSpecie = await dio.get(item["species"]["url"]);
+            var previousPokemonSumurryData =
+                (nextSpecie.data["varieties"] as List<dynamic>)
+                    .firstWhere((e) => e["is_default"] == true);
+            urlPokemon = previousPokemonSumurryData["pokemon"]["url"];
+            _fetchPokemonDetails();
+          }
+        }
+      }
     }
   }
 
@@ -159,7 +221,7 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
                       icon: Icon(Icons.arrow_back),
                       iconSize: 36,
                       onPressed: () {
-                        setState(() {});
+                        _goToEvolutionChain(RightLeftEnum.left);
                       },
                     ),
                     Padding(
@@ -194,7 +256,7 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
                       icon: Icon(Icons.arrow_forward),
                       iconSize: 36,
                       onPressed: () {
-                        setState(() {});
+                        _goToEvolutionChain(RightLeftEnum.right);
                       },
                     ),
                   ],
@@ -223,6 +285,8 @@ class _DetalhesPokemonPageState extends State<DetalhesPokemonPage> {
                                 return AlertDialog(
                                   title: Text('Movimentos do Pokémon'),
                                   content: SingleChildScrollView(
+                                    // trocar para Wrap
+
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,

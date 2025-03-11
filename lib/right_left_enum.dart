@@ -1,0 +1,4 @@
+enum RightLeftEnum {
+  right,
+  left;
+}
